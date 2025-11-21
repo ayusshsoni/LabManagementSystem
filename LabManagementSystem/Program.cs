@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LabManagementSystem.Forms; // Add this using directive
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +17,12 @@ namespace LabManagementSystem
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+
+            // Initialize the database when the application starts
+            Database.InitializeDatabase();
+
+            // Run the login form first
+            Application.Run(new LoginForm());
         }
     }
 }
