@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
+using LabManagementSystem;
 
 namespace LabManagementSystem.Forms
 {
@@ -10,11 +11,14 @@ namespace LabManagementSystem.Forms
         public AttendanceForm()
         {
             InitializeComponent();
+            this.Load += AttendanceForm_Load_Themed; // New themed load handler
+            ThemeManager.OnThemeChanged += ThemeManager_OnThemeChanged; // Subscribe to theme changes
         }
 
-        private void AttendanceForm_Load(object sender, EventArgs e)
+        private void AttendanceForm_Load_Themed(object sender, EventArgs e)
         {
             LoadSessionsIntoComboBox();
+            ThemeManager.ApplyTheme(this); // Apply theme on load
         }
 
         private void LoadSessionsIntoComboBox()
@@ -38,15 +42,12 @@ namespace LabManagementSystem.Forms
                         DataTable dt = new DataTable();
                         da.Fill(dt);
 
+                        // Add a custom column to combine info for display BEFORE setting DataSource
+                        dt.Columns.Add("DisplayInfo", typeof(string), "Date + ' ' + Time + ' - ' + PracticalTitle");
+
                         cmbSession.DisplayMember = "DisplayInfo"; // Custom property for display
                         cmbSession.ValueMember = "SessionID";
                         cmbSession.DataSource = dt;
-
-                        // Add a custom column to combine info for display
-                        dt.Columns.Add("DisplayInfo", typeof(string), "Date + ' ' + Time + ' - ' + PracticalTitle");
-
-                        // Ensure that after adding the column, the DisplayMember is correctly set
-                        cmbSession.DisplayMember = "DisplayInfo";
 
                         if (cmbSession.Items.Count > 0)
                         {
@@ -56,10 +57,12 @@ namespace LabManagementSystem.Forms
                         {
                             dgvAttendance.DataSource = null; // Clear DGV if no sessions
                         }
+                        Logger.LogInfo("Sessions loaded into combo box for attendance.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading sessions for dropdown: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading sessions for attendance dropdown.", ex);
+                        MessageBox.Show("An error occurred loading sessions. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -102,10 +105,12 @@ namespace LabManagementSystem.Forms
                         DataTable dt = new DataTable();
                         da.Fill(dt);
                         dgvAttendance.DataSource = dt;
+                        Logger.LogInfo($"Attendance loaded for session ID: {sessionId}");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading attendance: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"Error loading attendance for session ID: {sessionId}", ex);
+                        MessageBox.Show("An error occurred loading attendance. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -115,7 +120,7 @@ namespace LabManagementSystem.Forms
         {
             if (cmbSession.SelectedValue == null)
             {
-                MessageBox.Show("Please select a session first.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a session first to save attendance.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
 
@@ -129,19 +134,27 @@ namespace LabManagementSystem.Forms
                     {
                         foreach (DataGridViewRow row in dgvAttendance.Rows)
                         {
-                            if (row.Cells["colAttendanceID"].Value != DBNull.Value && row.Cells["colStudentID"].Value != DBNull.Value)
+                            // Ensure it's not a new row for adding, and cells are not null
+                            if (!row.IsNewRow && row.Cells["colAttendanceID"].Value != DBNull.Value && row.Cells["colStudentID"].Value != DBNull.Value)
                             {
                                 int attendanceId = Convert.ToInt32(row.Cells["colAttendanceID"].Value);
-                                int studentId = Convert.ToInt32(row.Cells["colStudentID"].Value);
+                                //int studentId = Convert.ToInt32(row.Cells["colStudentID"].Value); // Not strictly needed for update query
                                 string status = row.Cells["colStatus"].Value?.ToString();
 
-                                string updateQuery = "UPDATE Attendance SET Status = @status WHERE AttendanceID = @attendanceId AND SessionID = @sessionId AND StudentID = @studentId";
+                                if (string.IsNullOrWhiteSpace(status))
+                                {
+                                    MessageBox.Show($"Attendance status for student '{row.Cells["colName"].Value}' cannot be empty. Skipping this student.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                    Logger.LogWarning($"Skipped saving attendance for student {row.Cells["colName"].Value} in session {sessionId} due to empty status.");
+                                    continue; // Skip this row and continue with others
+                                }
+
+                                string updateQuery = "UPDATE Attendance SET Status = @status WHERE AttendanceID = @attendanceId"; // SessionID and StudentID are unique, but we can update by ID
                                 using (var cmd = new SQLiteCommand(updateQuery, conn, transaction))
                                 {
                                     cmd.Parameters.AddWithValue("@status", status);
                                     cmd.Parameters.AddWithValue("@attendanceId", attendanceId);
-                                    cmd.Parameters.AddWithValue("@sessionId", sessionId);
-                                    cmd.Parameters.AddWithValue("@studentId", studentId);
+                                    //cmd.Parameters.AddWithValue("@sessionId", sessionId); // Not needed if using AttendanceID
+                                    //cmd.Parameters.AddWithValue("@studentId", studentId); // Not needed if using AttendanceID
                                     cmd.ExecuteNonQuery();
                                 }
                             }
@@ -149,14 +162,21 @@ namespace LabManagementSystem.Forms
                         transaction.Commit();
                         MessageBox.Show("Attendance saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadAttendanceForSession(sessionId); // Refresh after saving
+                        Logger.LogInfo($"Attendance saved for session ID: {sessionId}");
                     }
                     catch (Exception ex)
                     {
                         transaction.Rollback();
-                        MessageBox.Show($"Error saving attendance: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"Error saving attendance for session ID: {sessionId}", ex);
+                        MessageBox.Show("An error occurred saving attendance. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
+        }
+
+        private void ThemeManager_OnThemeChanged(ThemeManager.AppTheme theme)
+        {
+            ThemeManager.ApplyTheme(this); // Apply theme when notified of change
         }
     }
 }

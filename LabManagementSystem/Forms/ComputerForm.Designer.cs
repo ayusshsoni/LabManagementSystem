@@ -41,54 +41,55 @@
             this.dgvComputers = new System.Windows.Forms.DataGridView();
             this.label4 = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
+            this.btnClearSearch = new System.Windows.Forms.Button();
+            this.btnExportCsv = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvComputers)).BeginInit();
             this.SuspendLayout();
-            //
+            // 
             // label1
-            //
+            // 
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(36, 40);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(73, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "System No:";
-            //
+            // 
             // txtSystemNo
-            //
+            // 
             this.txtSystemNo.Location = new System.Drawing.Point(130, 37);
             this.txtSystemNo.Name = "txtSystemNo";
             this.txtSystemNo.Size = new System.Drawing.Size(200, 22);
             this.txtSystemNo.TabIndex = 1;
-            //
+            // 
             // label2
-            //
+            // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(36, 78);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(89, 16);
             this.label2.TabIndex = 2;
             this.label2.Text = "Configuration:";
-            //
+            // 
             // txtConfiguration
-            //
+            // 
             this.txtConfiguration.Location = new System.Drawing.Point(130, 75);
             this.txtConfiguration.Name = "txtConfiguration";
             this.txtConfiguration.Size = new System.Drawing.Size(200, 22);
             this.txtConfiguration.TabIndex = 3;
-            //
+            // 
             // label3
-            //
+            // 
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(36, 116);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(47, 16);
             this.label3.TabIndex = 4;
             this.label3.Text = "Status:";
-            //
+            // 
             // cmbStatus
-            //
-            this.cmbStatus.DropDownStyle =
-                System.Windows.Forms.ComboBoxStyle.DropDownList;
+            // 
+            this.cmbStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbStatus.FormattingEnabled = true;
             this.cmbStatus.Items.AddRange(new object[] {
             "Working",
@@ -97,9 +98,9 @@
             this.cmbStatus.Name = "cmbStatus";
             this.cmbStatus.Size = new System.Drawing.Size(200, 24);
             this.cmbStatus.TabIndex = 5;
-            //
+            // 
             // btnAdd
-            //
+            // 
             this.btnAdd.Location = new System.Drawing.Point(39, 160);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(75, 30);
@@ -107,9 +108,9 @@
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
-            //
+            // 
             // btnUpdate
-            //
+            // 
             this.btnUpdate.Location = new System.Drawing.Point(120, 160);
             this.btnUpdate.Name = "btnUpdate";
             this.btnUpdate.Size = new System.Drawing.Size(75, 30);
@@ -117,9 +118,9 @@
             this.btnUpdate.Text = "Update";
             this.btnUpdate.UseVisualStyleBackColor = true;
             this.btnUpdate.Click += new System.EventHandler(this.btnUpdate_Click);
-            //
+            // 
             // btnDelete
-            //
+            // 
             this.btnDelete.Location = new System.Drawing.Point(201, 160);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(75, 30);
@@ -127,66 +128,82 @@
             this.btnDelete.Text = "Delete";
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
-            //
+            // 
             // btnClear
-            //
+            // 
             this.btnClear.Location = new System.Drawing.Point(282, 160);
+            this.btnClear.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 30);
             this.btnClear.TabIndex = 9;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
             this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-            //
+            // 
             // dgvComputers
-            //
+            // 
             this.dgvComputers.AllowUserToAddRows = false;
             this.dgvComputers.AllowUserToDeleteRows = false;
-            this.dgvComputers.Anchor =
-                ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Bottom) |
-                                                      System.Windows.Forms.AnchorStyles.Left) |
-                                                     System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvComputers.AutoSizeColumnsMode =
-                System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvComputers.ColumnHeadersHeightSizeMode =
-                System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvComputers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvComputers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvComputers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvComputers.Location = new System.Drawing.Point(39, 250);
             this.dgvComputers.MultiSelect = false;
             this.dgvComputers.Name = "dgvComputers";
             this.dgvComputers.ReadOnly = true;
             this.dgvComputers.RowHeadersWidth = 51;
             this.dgvComputers.RowTemplate.Height = 24;
-            this.dgvComputers.SelectionMode =
-                System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvComputers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvComputers.Size = new System.Drawing.Size(740, 290);
             this.dgvComputers.TabIndex = 10;
-            this.dgvComputers.CellClick +=
-                new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvComputers_CellClick);
-            //
+            this.dgvComputers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvComputers_CellClick);
+            // 
             // label4
-            //
+            // 
             this.label4.AutoSize = true;
             this.label4.Location = new System.Drawing.Point(39, 219);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(53, 16);
             this.label4.TabIndex = 11;
             this.label4.Text = "Search:";
-            //
+            // 
             // txtSearch
-            //
+            // 
             this.txtSearch.Location = new System.Drawing.Point(100, 216);
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(200, 22);
             this.txtSearch.TabIndex = 12;
-            this.txtSearch.TextChanged +=
-                new System.EventHandler(this.txtSearch_TextChanged);
-            //
+            this.txtSearch.TextChanged += new System.EventHandler(this.txtSearch_TextChanged);
+            // 
+            // btnClearSearch
+            // 
+            this.btnClearSearch.Location = new System.Drawing.Point(306, 215);
+            this.btnClearSearch.Name = "btnClearSearch";
+            this.btnClearSearch.Size = new System.Drawing.Size(75, 24);
+            this.btnClearSearch.TabIndex = 13;
+            this.btnClearSearch.Text = "Clear Search";
+            this.btnClearSearch.UseVisualStyleBackColor = true;
+            this.btnClearSearch.Click += new System.EventHandler(this.btnClearSearch_Click);
+            // 
+            // btnExportCsv
+            // 
+            this.btnExportCsv.Location = new System.Drawing.Point(363, 160);
+            this.btnExportCsv.Name = "btnExportCsv";
+            this.btnExportCsv.Size = new System.Drawing.Size(110, 30);
+            this.btnExportCsv.TabIndex = 14;
+            this.btnExportCsv.Text = "Export to CSV";
+            this.btnExportCsv.UseVisualStyleBackColor = true;
+            this.btnExportCsv.Click += new System.EventHandler(this.btnExportCsv_Click);
+            // 
             // ComputerForm
-            //
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 550);
+            this.Controls.Add(this.btnExportCsv);
+            this.Controls.Add(this.btnClearSearch);
             this.Controls.Add(this.txtSearch);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.dgvComputers);
@@ -206,6 +223,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvComputers)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion
@@ -223,5 +241,7 @@
         private System.Windows.Forms.DataGridView dgvComputers;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnClearSearch;
+        private System.Windows.Forms.Button btnExportCsv;
     }
 }

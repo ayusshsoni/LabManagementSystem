@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.SQLite;
 using System.Windows.Forms;
+using LabManagementSystem;
 
 namespace LabManagementSystem.Forms
 {
@@ -9,6 +10,16 @@ namespace LabManagementSystem.Forms
         public LoginForm()
         {
             InitializeComponent();
+            this.Load += LoginForm_Load_Themed; // New themed load handler
+            ThemeManager.OnThemeChanged += ThemeManager_OnThemeChanged; // Subscribe to theme changes
+        }
+
+        private void LoginForm_Load_Themed(object sender, EventArgs e)
+        {
+            // Optional: Pre-fill for testing
+            txtUsername.Text = "admin";
+            txtPassword.Text = "admin";
+            ThemeManager.ApplyTheme(this); // Apply theme on load
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -16,10 +27,17 @@ namespace LabManagementSystem.Forms
             string username = txtUsername.Text;
             string password = txtPassword.Text;
 
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                MessageBox.Show("Please enter both username and password.", "Login Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Logger.LogWarning("Login attempt with empty username or password.");
+                return;
+            }
+
             if (AuthenticateUser(username, password))
             {
                 MessageBox.Show("Login Successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                // Hide login form and show dashboard
+                Logger.LogInfo($"User '{username}' logged in successfully.");
                 this.Hide();
                 Dashboard dashboard = new Dashboard();
                 dashboard.ShowDialog();
@@ -29,6 +47,7 @@ namespace LabManagementSystem.Forms
             {
                 MessageBox.Show("Invalid Username or Password", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtPassword.Clear(); // Clear password field for security
+                Logger.LogWarning($"Failed login attempt for username: {username}");
             }
         }
 
@@ -48,18 +67,17 @@ namespace LabManagementSystem.Forms
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Database error during login: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"Database error during login for username: {username}", ex);
+                        MessageBox.Show("An error occurred during login. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
                 }
             }
         }
 
-        private void LoginForm_Load(object sender, EventArgs e)
+        private void ThemeManager_OnThemeChanged(ThemeManager.AppTheme theme)
         {
-            // Optional: Pre-fill for testing
-            txtUsername.Text = "admin";
-            txtPassword.Text = "admin";
+            ThemeManager.ApplyTheme(this); // Apply theme when notified of change
         }
     }
 }

@@ -2,6 +2,8 @@
 using System.Data;
 using System.Data.SQLite;
 using System.Windows.Forms;
+using LabManagementSystem;
+using LabManagementSystem;
 
 namespace LabManagementSystem.Forms
 {
@@ -12,9 +14,11 @@ namespace LabManagementSystem.Forms
         public SessionForm()
         {
             InitializeComponent();
+            this.Load += SessionForm_Load_Themed; // New themed load handler
+            ThemeManager.OnThemeChanged += ThemeManager_OnThemeChanged; // Subscribe to theme changes
         }
 
-        private void SessionForm_Load(object sender, EventArgs e)
+        private void SessionForm_Load_Themed(object sender, EventArgs e)
         {
             LoadPracticalsIntoComboBox();
             LoadSessions();
@@ -22,6 +26,7 @@ namespace LabManagementSystem.Forms
             LoadAvailableComputers();
             UpdateAssignmentButtons();
             dtpDate.Value = DateTime.Today; // Set default date to today
+            ThemeManager.ApplyTheme(this); // Apply theme on load
         }
 
         private void LoadPracticalsIntoComboBox()
@@ -40,10 +45,12 @@ namespace LabManagementSystem.Forms
                         cmbPractical.DisplayMember = "Title";
                         cmbPractical.ValueMember = "PracticalID";
                         cmbPractical.DataSource = dt;
+                        Logger.LogInfo("Practicals loaded into combo box for sessions.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading practicals for dropdown: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading practicals for session dropdown.", ex);
+                        MessageBox.Show("An error occurred loading practicals. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -61,7 +68,7 @@ namespace LabManagementSystem.Forms
                         P.Title AS PracticalTitle
                     FROM LabSessions LS
                     JOIN Practicals P ON LS.PracticalID = P.PracticalID
-                    ORDER BY LS.Date DESC, LS.Time DESC";
+                    ORDER BY LS.Date DESC, LS.Time DESC"; // Default sort
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
                     try
@@ -71,10 +78,12 @@ namespace LabManagementSystem.Forms
                         da.Fill(dt);
                         dgvSessions.DataSource = dt;
                         dgvSessions.Columns["SessionID"].Visible = false; // Hide ID column
+                        Logger.LogInfo("Lab sessions loaded successfully.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading lab sessions: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading lab sessions.", ex);
+                        MessageBox.Show("An error occurred loading lab sessions. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -105,10 +114,12 @@ namespace LabManagementSystem.Forms
                         da.Fill(dt);
                         dgvAvailableStudents.DataSource = dt;
                         dgvAvailableStudents.Columns["StudentID"].Visible = false;
+                        Logger.LogInfo("Available students loaded for current session.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading available students: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading available students for current session.", ex);
+                        MessageBox.Show("An error occurred loading available students. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -139,10 +150,12 @@ namespace LabManagementSystem.Forms
                         da.Fill(dt);
                         dgvAvailableComputers.DataSource = dt;
                         dgvAvailableComputers.Columns["ComputerID"].Visible = false;
+                        Logger.LogInfo("Available computers loaded for current session.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading available computers: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading available computers for current session.", ex);
+                        MessageBox.Show("An error occurred loading available computers. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -173,10 +186,12 @@ namespace LabManagementSystem.Forms
                         da.Fill(dt);
                         dgvSessionAssignments.DataSource = dt;
                         dgvSessionAssignments.Columns["AssignID"].Visible = false;
+                        Logger.LogInfo("Session assignments loaded for current session.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error loading session assignments: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError("Error loading session assignments for current session.", ex);
+                        MessageBox.Show("An error occurred loading session assignments. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -212,12 +227,14 @@ namespace LabManagementSystem.Forms
             if (cmbPractical.SelectedValue == null)
             {
                 MessageBox.Show("Please select a practical.", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Logger.LogWarning("Attempted to add session without selecting a practical.");
                 return;
             }
 
             if (!TimeSpan.TryParse(txtTime.Text, out TimeSpan sessionTime))
             {
                 MessageBox.Show("Please enter a valid time in HH:MM format (e.g., 10:00).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                Logger.LogWarning($"Attempted to add session with invalid time format: {txtTime.Text}");
                 return;
             }
 
@@ -235,10 +252,12 @@ namespace LabManagementSystem.Forms
                         MessageBox.Show("Lab session added successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadSessions();
                         ClearSessionForm(); // Clear form and reset selected session
+                        Logger.LogInfo($"Lab session added for {dtpDate.Value.ToShortDateString()} at {txtTime.Text}. Practical: {cmbPractical.Text}");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error adding lab session: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"Error adding lab session: {dtpDate.Value.ToShortDateString()} at {txtTime.Text}.", ex);
+                        MessageBox.Show("An error occurred adding the lab session. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -248,11 +267,16 @@ namespace LabManagementSystem.Forms
         {
             if (selectedSessionId == 0)
             {
-                MessageBox.Show("Please select a session to delete.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a session to delete.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to delete session without selection.");
                 return;
             }
 
-            DialogResult confirm = MessageBox.Show("Deleting a session will also delete all its student and computer assignments. Are you sure?", "Confirm Delete", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            string sessionInfo = $"{dtpDate.Value.ToShortDateString()} {txtTime.Text} - {cmbPractical.Text}";
+            DialogResult confirm = MessageBox.Show(
+                $"Deleting the session '{sessionInfo}' will permanently delete all its associated student and computer assignments, and attendance records. This action cannot be undone. Are you sure you want to proceed?",
+                "Confirm Session Deletion",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
             if (confirm == DialogResult.Yes)
             {
@@ -262,12 +286,13 @@ namespace LabManagementSystem.Forms
                     {
                         try
                         {
-                            // Delete related attendance records first (if any)
+                            // Delete related attendance records first
                             string deleteAttendanceQuery = "DELETE FROM Attendance WHERE SessionID = @sessionId";
                             using (var cmd = new SQLiteCommand(deleteAttendanceQuery, conn, transaction))
                             {
                                 cmd.Parameters.AddWithValue("@sessionId", selectedSessionId);
                                 cmd.ExecuteNonQuery();
+                                Logger.LogInfo($"Deleted attendance for session ID {selectedSessionId}.");
                             }
 
                             // Delete related session assignments
@@ -276,6 +301,7 @@ namespace LabManagementSystem.Forms
                             {
                                 cmd.Parameters.AddWithValue("@sessionId", selectedSessionId);
                                 cmd.ExecuteNonQuery();
+                                Logger.LogInfo($"Deleted session assignments for session ID {selectedSessionId}.");
                             }
 
                             // Delete the session itself
@@ -288,13 +314,15 @@ namespace LabManagementSystem.Forms
 
                             transaction.Commit();
                             MessageBox.Show("Lab session and all related data deleted successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            Logger.LogInfo($"Lab session ID {selectedSessionId} and all related data deleted.");
                             LoadSessions();
                             ClearSessionForm();
                         }
                         catch (Exception ex)
                         {
                             transaction.Rollback();
-                            MessageBox.Show($"Error deleting lab session: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Logger.LogError($"Error deleting lab session ID {selectedSessionId}.", ex);
+                            MessageBox.Show("An error occurred deleting the lab session. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                 }
@@ -331,13 +359,15 @@ namespace LabManagementSystem.Forms
         {
             if (selectedSessionId == 0)
             {
-                MessageBox.Show("Please select a lab session first.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a lab session first to assign a student.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to assign student to session without selecting a session.");
                 return;
             }
 
             if (dgvAvailableStudents.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Please select a student from the available list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a student from the 'Available Students' list to assign.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to assign student to session without selecting a student.");
                 return;
             }
 
@@ -354,26 +384,30 @@ namespace LabManagementSystem.Forms
                     try
                     {
                         cmd.ExecuteNonQuery();
-                        MessageBox.Show("Student assigned to session.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Student assigned to session successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadAvailableStudents();
                         LoadSessionAssignments();
                         // Also add an entry to Attendance for this student in this session, default to Absent
                         InsertOrUpdateAttendance(selectedSessionId, studentId, "Absent");
+                        Logger.LogInfo($"Student ID {studentId} assigned to session ID {selectedSessionId}.");
                     }
                     catch (SQLiteException ex)
                     {
                         if (ex.ResultCode == SQLiteErrorCode.Constraint)
                         {
-                            MessageBox.Show("This student is already assigned to this session.", "Duplicate Assignment", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            Logger.LogWarning($"Attempted to assign student ID {studentId} to session ID {selectedSessionId} multiple times.");
+                            MessageBox.Show("This student is already assigned to this session.", "Duplicate Assignment", MessageBoxButtons.OK, MessageBoxIcon.Information); // Changed to Info
                         }
                         else
                         {
-                            MessageBox.Show($"Error assigning student: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Logger.LogError($"Error assigning student ID {studentId} to session ID {selectedSessionId}.", ex);
+                            MessageBox.Show("An error occurred assigning the student. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error assigning student: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"General error assigning student ID {studentId} to session ID {selectedSessionId}.", ex);
+                        MessageBox.Show("An unexpected error occurred assigning the student. See log for details.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -383,19 +417,22 @@ namespace LabManagementSystem.Forms
         {
             if (selectedSessionId == 0)
             {
-                MessageBox.Show("Please select a lab session first.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a lab session first.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to assign computer without selecting a session.");
                 return;
             }
 
             if (dgvSessionAssignments.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Please select a student assignment from 'Current Assignments' to assign a computer.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select a student assignment from 'Current Assignments' to assign a computer.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to assign computer to assignment without selecting an assignment.");
                 return;
             }
 
             if (dgvAvailableComputers.SelectedRows.Count == 0)
             {
-                MessageBox.Show("Please select an available computer.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Please select an available computer from the list.", "Selection Required", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Logger.LogWarning("Attempted to assign computer without selecting an available computer.");
                 return;
             }
 
@@ -404,6 +441,21 @@ namespace LabManagementSystem.Forms
 
             using (var conn = Database.GetConnection())
             {
+                // Check if the selected computer is already assigned to another student in this session (should be prevented by LoadAvailableComputers, but double-check)
+                string checkComputerAssignment = "SELECT COUNT(1) FROM SessionAssignments WHERE SessionID = @sessionId AND ComputerID = @computerId AND AssignID != @assignId";
+                using (var checkCmd = new SQLiteCommand(checkComputerAssignment, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@sessionId", selectedSessionId);
+                    checkCmd.Parameters.AddWithValue("@computerId", computerId);
+                    checkCmd.Parameters.AddWithValue("@assignId", assignId);
+                    if (Convert.ToInt32(checkCmd.ExecuteScalar()) > 0)
+                    {
+                        MessageBox.Show("This computer is already assigned to another student in this session. Please select a different computer.", "Duplicate Assignment", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        Logger.LogWarning($"Attempted to assign computer ID {computerId} to assignment ID {assignId} but it's already in use in session {selectedSessionId}.");
+                        return;
+                    }
+                }
+
                 string query = "UPDATE SessionAssignments SET ComputerID = @computerId WHERE AssignID = @assignId";
                 using (var cmd = new SQLiteCommand(query, conn))
                 {
@@ -415,10 +467,12 @@ namespace LabManagementSystem.Forms
                         MessageBox.Show("Computer assigned successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         LoadAvailableComputers();
                         LoadSessionAssignments();
+                        Logger.LogInfo($"Computer ID {computerId} assigned to assignment ID {assignId} in session ID {selectedSessionId}.");
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show($"Error assigning computer: {ex.Message}", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Logger.LogError($"Error assigning computer ID {computerId} to assignment ID {assignId}.", ex);
+                        MessageBox.Show("An error occurred assigning the computer. See log for details.", "Database Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -444,6 +498,7 @@ namespace LabManagementSystem.Forms
                             insertCmd.Parameters.AddWithValue("@studentId", studentId);
                             insertCmd.Parameters.AddWithValue("@status", status);
                             insertCmd.ExecuteNonQuery();
+                            Logger.LogInfo($"Initial attendance record added for student ID {studentId} in session ID {sessionId} with status '{status}'.");
                         }
                     }
                     // If it exists, we don't need to update it here, as AttendanceForm will manage updates
@@ -467,6 +522,17 @@ namespace LabManagementSystem.Forms
                 txtTime.Text = "HH:MM (e.g., 10:00)";
                 txtTime.ForeColor = System.Drawing.SystemColors.GrayText;
             }
+            else if (!System.Text.RegularExpressions.Regex.IsMatch(txtTime.Text, @"^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"))
+            {
+                MessageBox.Show("Time must be in HH:MM format (e.g., 10:00 or 14:30).", "Validation Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtTime.Focus();
+                Logger.LogWarning($"Invalid time format entered in SessionForm: {txtTime.Text}");
+            }
+        }
+
+        private void ThemeManager_OnThemeChanged(ThemeManager.AppTheme theme)
+        {
+            ThemeManager.ApplyTheme(this); // Apply theme when notified of change
         }
     }
 }

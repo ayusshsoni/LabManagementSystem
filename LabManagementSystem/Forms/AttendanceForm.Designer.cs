@@ -52,29 +52,23 @@
             //
             // cmbSession
             //
-            this.cmbSession.DropDownStyle =
-                System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbSession.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbSession.FormattingEnabled = true;
             this.cmbSession.Location = new System.Drawing.Point(100, 27);
             this.cmbSession.Name = "cmbSession";
             this.cmbSession.Size = new System.Drawing.Size(300, 24);
             this.cmbSession.TabIndex = 1;
-            this.cmbSession.SelectedIndexChanged +=
-                new System.EventHandler(this.cmbSession_SelectedIndexChanged);
+            this.cmbSession.SelectedIndexChanged += new System.EventHandler(this.cmbSession_SelectedIndexChanged);
             //
             // dgvAttendance
             //
             this.dgvAttendance.AllowUserToAddRows = false;
             this.dgvAttendance.AllowUserToDeleteRows = false;
-            this.dgvAttendance.Anchor =
-                ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top |
-                                                       System.Windows.Forms.AnchorStyles.Bottom) |
-                                                      System.Windows.Forms.AnchorStyles.Left) |
-                                                     System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvAttendance.AutoSizeColumnsMode =
-                System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvAttendance.ColumnHeadersHeightSizeMode =
-                System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvAttendance.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvAttendance.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvAttendance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvAttendance.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colAttendanceID,
             this.colStudentID,
@@ -134,24 +128,19 @@
             //
             // btnSaveAttendance
             //
-            this.btnSaveAttendance.Anchor =
-                ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom |
-                                                      System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSaveAttendance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSaveAttendance.Location = new System.Drawing.Point(620, 410);
             this.btnSaveAttendance.Name = "btnSaveAttendance";
             this.btnSaveAttendance.Size = new System.Drawing.Size(150, 30);
             this.btnSaveAttendance.TabIndex = 3;
             this.btnSaveAttendance.Text = "Save Attendance";
             this.btnSaveAttendance.UseVisualStyleBackColor = true;
-            this.btnSaveAttendance.Click +=
-                new System.EventHandler(this.btnSaveAttendance_Click);
+            this.btnSaveAttendance.Click += new System.EventHandler(this.btnSaveAttendance_Click);
             //
             // label2
             //
             this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F,
-                System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point,
-                ((byte)(0)));
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(30, 75);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(186, 18);
@@ -174,6 +163,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgvAttendance)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
+
         }
 
         #endregion

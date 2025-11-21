@@ -1,4 +1,4 @@
-﻿using LabManagementSystem.Forms; // Add this using directive
+﻿using LabManagementSystem.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +20,9 @@ namespace LabManagementSystem
 
             // Initialize the database when the application starts
             Database.InitializeDatabase();
+
+            // Load theme setting before running the first form
+            ThemeManager.LoadThemeSetting(); // Ensure theme is loaded
 
             // Run the login form first
             Application.Run(new LoginForm());
